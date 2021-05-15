@@ -479,9 +479,9 @@ func (r *Runner) process(t string, wg *sizedwaitgroup.SizedWaitGroup, hp *httpx.
 		for port, wantedProtocol := range customport.Ports {
 			for _, method := range scanopts.Methods {
 				wg.Add()
-				go func(port int, method, protocol string) {
+				go func(port int, method, protocol string, tg string) {
 					defer wg.Done()
-					result := r.analyze(hp, protocol, target, port, method, scanopts)
+					result := r.analyze(hp, protocol, tg, port, method, scanopts)
 					output <- result
 					if scanopts.TLSProbe && result.TLSData != nil {
 						scanopts.TLSProbe = false
@@ -492,7 +492,7 @@ func (r *Runner) process(t string, wg *sizedwaitgroup.SizedWaitGroup, hp *httpx.
 							r.process(tt, wg, hp, protocol, scanopts, output)
 						}
 					}
-				}(port, method, wantedProtocol)
+				}(port, method, wantedProtocol, target)
 			}
 		}
 	}
